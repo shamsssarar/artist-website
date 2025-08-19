@@ -13,6 +13,7 @@ import ShopOriginals from "./pages/ShopOriginals";
 import Prints from "./pages/Prints";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
           <Route path="/prints" element={<Prints />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          {/* <Route path="*" element={<div className="p-6">Not Found</div>} /> */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </>
