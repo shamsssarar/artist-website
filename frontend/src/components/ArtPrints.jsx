@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 
-import image2 from "../assets/images/i2.jpg";
-import image3 from "../assets/images/i3.jpg";
+import image2 from "../assets/images/r2.jpg";
+import image3 from "../assets/images/r3.jpg";
 import image4 from "../assets/images/i4.jpg";
 import image5 from "../assets/images/i5.jpg";
 import image6 from "../assets/images/i6.jpg";
