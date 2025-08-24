@@ -25,6 +25,8 @@ def register(request):
     password = request.data.get("password")
     if not username or not password:
         return Response({"detail": "username & password required"}, status=400)
+    if not email:
+        return Response({"Email requierd"}, status=400)
     if User.objects.filter(username=username).exists():
         return Response({"detail": "username already taken"}, status=400)
     if email and User.objects.filter(email__iexact=email).exists():
