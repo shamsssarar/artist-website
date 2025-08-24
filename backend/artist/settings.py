@@ -78,7 +78,7 @@ MIDDLEWARE = [
 
 ALLOWED_HOSTS = _csv_env("ALLOWED_HOSTS")              # e.g. "your-app.onrender.com"
 # CORS_ALLOWED_ORIGINS = _csv_env("CORS_ALLOWED_ORIGINS")# e.g. "https://your-frontend.vercel.app"
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS", "False") == "True"
 CSRF_TRUSTED_ORIGINS = _csv_env("CSRF_TRUSTED_ORIGINS")
 
 ROOT_URLCONF = 'artist.urls'
