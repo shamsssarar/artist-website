@@ -5,10 +5,13 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 /** ---------- CONFIG ---------- */
 export const API_BASE =
   import.meta.env.VITE_API_BASE ||
+  import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? `${window.location.origin}/api` : "/api");
 
 const AuthContext = createContext(null);
-export function useAuth() { return useContext(AuthContext); }
+export function useAuth() {
+  return useContext(AuthContext);
+}
 
 export function AuthProvider({ children }) {
   // const navigate = useNavigate();
@@ -22,12 +25,20 @@ export function AuthProvider({ children }) {
   const refreshInflight = useRef(null);
 
   function saveTokens({ access, refresh }) {
-    if (access) { localStorage.setItem("access", access); setAccess(access); }
-    if (refresh) { localStorage.setItem("refresh", refresh); setRefresh(refresh); }
+    if (access) {
+      localStorage.setItem("access", access);
+      setAccess(access);
+    }
+    if (refresh) {
+      localStorage.setItem("refresh", refresh);
+      setRefresh(refresh);
+    }
   }
   function clearTokens() {
-    localStorage.removeItem("access"); localStorage.removeItem("refresh");
-    setAccess(null); setRefresh(null);
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    setAccess(null);
+    setRefresh(null);
   }
 
   function logout() {
@@ -38,16 +49,27 @@ export function AuthProvider({ children }) {
 
   async function parseMaybeJSON(res) {
     const txt = await res.text();
-    try { return txt ? JSON.parse(txt) : null; } catch { return null; }
+    try {
+      return txt ? JSON.parse(txt) : null;
+    } catch {
+      return null;
+    }
   }
 
   /** decode JWT payload safely */
   function decodeJwt(token) {
     try {
       const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-      const json = decodeURIComponent(atob(base64).split("").map(c => `%${("00"+c.charCodeAt(0).toString(16)).slice(-2)}`).join(""));
+      const json = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+          .join("")
+      );
       return JSON.parse(json);
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
 
   /** ---- API helpers ---- */
@@ -58,7 +80,8 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ username, password }),
     });
     const data = await parseMaybeJSON(res);
-    if (!res.ok || !data?.access) throw new Error(data?.detail || "Invalid credentials");
+    if (!res.ok || !data?.access)
+      throw new Error(data?.detail || "Invalid credentials");
     saveTokens(data);
     await fetchMe(data.access);
   }
@@ -70,7 +93,8 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ username, email, password }),
     });
     const data = await parseMaybeJSON(res);
-    if (!res.ok) throw new Error(data?.detail || `Signup failed (${res.status})`);
+    if (!res.ok)
+      throw new Error(data?.detail || `Signup failed (${res.status})`);
     await login(username, password);
   }
 
@@ -101,7 +125,10 @@ export function AuthProvider({ children }) {
   }
 
   async function fetchMe(usingAccess = access) {
-    if (!usingAccess) { setUser(null); return; }
+    if (!usingAccess) {
+      setUser(null);
+      return;
+    }
     const res = await fetch(`${API_BASE}/me/`, {
       headers: { Authorization: `Bearer ${usingAccess}` },
     });
@@ -126,14 +153,19 @@ export function AuthProvider({ children }) {
 
     const now = Date.now();
     const ms = Math.max(exp - now - 30_000, 0); // refresh 30s early
-    const id = setTimeout(() => { refreshAccessToken(); }, ms);
+    const id = setTimeout(() => {
+      refreshAccessToken();
+    }, ms);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [access, refresh]);
 
   /** load me on mount / access change */
   useEffect(() => {
-    (async () => { await fetchMe(); setLoading(false); })();
+    (async () => {
+      await fetchMe();
+      setLoading(false);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [access]);
 
@@ -150,27 +182,47 @@ export function AuthProvider({ children }) {
   /** authenticated fetch helper */
   async function authedFetch(path, options = {}) {
     const apiOrigin = new URL(API_BASE, window.location.origin).origin;
-    const target = path.startsWith("http") ? new URL(path) : new URL(path, API_BASE);
+    const target = path.startsWith("http")
+      ? new URL(path)
+      : new URL(path, API_BASE);
     const sameApi = target.origin === apiOrigin;
 
     const buildHeaders = (tk) => {
       const h = new Headers(options.headers || {});
       // only set Content-Type when body is plain JSON
-      const isForm = typeof FormData !== "undefined" && options.body instanceof FormData;
-      if (!isForm && !h.has("Content-Type")) h.set("Content-Type", "application/json");
+      const isForm =
+        typeof FormData !== "undefined" && options.body instanceof FormData;
+      if (!isForm && !h.has("Content-Type"))
+        h.set("Content-Type", "application/json");
       if (sameApi && tk) h.set("Authorization", `Bearer ${tk}`);
       return h;
     };
 
-    let res = await fetch(target.toString(), { ...options, headers: buildHeaders(access) });
+    let res = await fetch(target.toString(), {
+      ...options,
+      headers: buildHeaders(access),
+    });
 
     if (res.status === 401 && refresh && sameApi) {
       const newAccess = await refreshAccessToken();
-      if (newAccess) res = await fetch(target.toString(), { ...options, headers: buildHeaders(newAccess) });
+      if (newAccess)
+        res = await fetch(target.toString(), {
+          ...options,
+          headers: buildHeaders(newAccess),
+        });
     }
     return res;
   }
 
-  const value = { user, loading, access, login, signup, logout, authedFetch, API_BASE };
+  const value = {
+    user,
+    loading,
+    access,
+    login,
+    signup,
+    logout,
+    authedFetch,
+    API_BASE,
+  };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
