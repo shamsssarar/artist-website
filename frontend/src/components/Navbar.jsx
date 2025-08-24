@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useAuth } from "../auth/AuthContext";
 import { Link } from "react-router-dom";
 
-function Navabr() {
+function Navbar() {
   const [open, setOpen] = useState(false); // right (hamburger)
   const [open2, setOpen2] = useState(false); // left (cart)
 
@@ -9,6 +10,9 @@ function Navabr() {
   const rightRef = useRef(null);
   const leftBtnRef = useRef(null);
   const rightBtnRef = useRef(null);
+
+  // auth
+  const { user, logout } = useAuth();
 
   // Close when clicking outside either dropdown
   useEffect(() => {
@@ -47,7 +51,7 @@ function Navabr() {
       <div className="w-full bg-[#22303d] text-white">
         <div className="flex h-[230px] justify-between max-w-[1240px] p-2 m-auto items-center">
           {/* LEFT: Cart dropdown */}
-          <div>
+          <div className="">
             <div
               className={`dropdown dropdown-start ${
                 open2 ? "dropdown-open" : ""
@@ -106,7 +110,7 @@ function Navabr() {
 
           {/* LOGO */}
           <div>
-            <a className="m-2" href="/">
+            <a href="/">
               <h1 className="text-4xl md:text-7xl font-serif pb-2">
                 Shaira Maliha
               </h1>
@@ -117,68 +121,113 @@ function Navabr() {
           </div>
 
           {/* RIGHT: Hamburger dropdown (mobile) */}
-          <div className="md:hidden">
-            <div
-              className={`dropdown dropdown-end ${open ? "dropdown-open" : ""}`}
-              ref={rightRef}
-            >
-              <button
-                ref={rightBtnRef}
-                type="button"
-                className="btn btn-ghost btn-circle"
-                onClick={handleClick}
-                aria-expanded={open}
-                aria-haspopup="menu"
+          <div className="flex items-center md:absolute">
+            <div className="md:hidden">
+              <div
+                className={`dropdown dropdown-end ${
+                  open ? "dropdown-open" : ""
+                }`}
+                ref={rightRef}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+                <button
+                  ref={rightBtnRef}
+                  type="button"
+                  className="btn btn-ghost btn-circle"
+                  onClick={handleClick}
+                  aria-expanded={open}
+                  aria-haspopup="menu"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h7"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 6h16M4 12h16M4 18h7"
+                    />
+                  </svg>
+                </button>
 
-              {open && (
-                <ul className="menu menu-lg dropdown-content bg-base-100 rounded-box z-[100] mt-3 w-52 p-2 shadow ">
-                  <li >
-                    <Link to="/" onClick={() => setOpen(false)}>
-                      Home
-                    </Link>
-                  </li>
-                  <li >
-                    <Link to="/shop-originals" onClick={() => setOpen(false)}>
-                      Shop Originals
-                    </Link>
-                  </li>
-                  <li >
-                    <Link to="/prints" onClick={() => setOpen(false)}>
-                      Prints
-                    </Link>
-                  </li>
-                  <li >
-                    <Link to="/about" onClick={() => setOpen(false)}>
-                      About
-                    </Link>
-                  </li>
-                  <li >
-                    <Link to="/contact" onClick={() => setOpen(false)}>
-                      Contact
-                    </Link>
-                  </li>
-                </ul>
-              )}
+                {open && (
+                  <ul className="menu menu-lg dropdown-content bg-base-100 rounded-box z-[100] mt-3 w-52 p-2 shadow ">
+                    <li>
+                      <Link to="/" onClick={() => setOpen(false)}>
+                        Home
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/shop-originals" onClick={() => setOpen(false)}>
+                        Shop Originals
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/prints" onClick={() => setOpen(false)}>
+                        Prints
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/about" onClick={() => setOpen(false)}>
+                        About
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/contact" onClick={() => setOpen(false)}>
+                        Contact
+                      </Link>
+                    </li>
+                    {!user ? (
+                      <>
+                        <li className="pt-1">
+                          <Link
+                            to="/login"
+                            onClick={() => setOpen(false)}
+                            className="inline-flex w-full items-center justify-center rounded-xl 
+               bg-gradient-to-r from-[#22303d] via-[#2a4a57] to-teal-600 
+               px-3 py-2 text-white shadow-md transition hover:opacity-75 
+               focus:outline-none focus:ring-2 focus:ring-teal-500"
+                          >
+                            Login
+                          </Link>
+                        </li>
+
+                        <li className="pt-1">
+                          <Link
+                            to="/signup"
+                            onClick={() => setOpen(false)}
+                            className="inline-flex w-full items-center justify-center rounded-xl 
+               bg-gradient-to-r from-[#22303d] via-[#2a4a57] to-teal-600 
+               px-3 py-2 text-white shadow-md transition hover:opacity-75 
+               focus:outline-none focus:ring-2 focus:ring-teal-500"
+                          >
+                            Sign up
+                          </Link>
+                        </li>
+                      </>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm opacity-80">
+                          Hi, {user.username}
+                        </span>
+                        <button
+                          onClick={logout}
+                          className="rounded-xl bg-white/10 px-3 py-1 hover:bg-white/20"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Currency dropdown (desktop) */}
-          <div className="hidden md:block">
+          <div className="hidden md:block ">
             <ul className="menu p-0 m-0 menu-horizontal text-xl">
               <li>
                 <details>
@@ -241,4 +290,4 @@ function Navabr() {
   );
 }
 
-export default Navabr;
+export default Navbar;

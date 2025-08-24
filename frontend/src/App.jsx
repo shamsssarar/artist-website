@@ -1,4 +1,4 @@
-import Navabr from "./components/Navabr";
+import Navbar from "./components/Navbar";
 // import ImageSlider from "./components/ImageSlider";
 // import ViewWork from "./components/ViewWork";
 // import ArtPrints from "./components/ArtPrints";
@@ -14,21 +14,29 @@ import Prints from "./pages/Prints";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./auth/AuthContext";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ProtectedRoute from "./auth/ProtectedRoute";
 
 function App() {
   return (
     <>
-    <Navabr/>
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/shop-originals" element={<ShopOriginals />} />
-          <Route path="/prints" element={<Prints />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
+      <AuthProvider>
+        <Navbar />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/shop-originals" element={<ProtectedRoute><ShopOriginals /></ProtectedRoute>} />
+            <Route path="/prints" element={<Prints />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+        </main>
+      </AuthProvider>
     </>
   );
 }

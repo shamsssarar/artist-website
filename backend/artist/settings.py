@@ -25,6 +25,7 @@ def _csv_env(name):
     return [s for s in items if s]
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
+# DEBUG = True
 
 
 # Quick-start development settings - unsuitable for production
@@ -51,11 +52,20 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
 ]
 
+REST_FRAMEWORK = {
+  "DEFAULT_AUTHENTICATION_CLASSES": (
+      "rest_framework_simplejwt.authentication.JWTAuthentication",
+  ),
+  "DEFAULT_PERMISSION_CLASSES": (
+      "rest_framework.permissions.AllowAny",
+  ),
+}
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -67,7 +77,8 @@ MIDDLEWARE = [
 
 
 ALLOWED_HOSTS = _csv_env("ALLOWED_HOSTS")              # e.g. "your-app.onrender.com"
-CORS_ALLOWED_ORIGINS = _csv_env("CORS_ALLOWED_ORIGINS")# e.g. "https://your-frontend.vercel.app"
+# CORS_ALLOWED_ORIGINS = _csv_env("CORS_ALLOWED_ORIGINS")# e.g. "https://your-frontend.vercel.app"
+CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = _csv_env("CSRF_TRUSTED_ORIGINS")
 
 ROOT_URLCONF = 'artist.urls'
@@ -109,6 +120,14 @@ else:
             "NAME": os.getenv("SQLITE_PATH", "/tmp/db.sqlite3"),
         }
     }
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
